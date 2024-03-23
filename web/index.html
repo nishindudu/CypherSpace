@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CypherSpace</title>
+        <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+        <script type="text/javascript" src="/eel.js"></script>
+        <script type='text/javascript' src="script.js"></script>
+        <link href="style.css" rel="stylesheet">
+    </head>
+    <body onload="init()" id="bodyy" class="">
+        <div class="nav">
+            <span class="title_txt">CypherSpace</span>
+            <span><img src="/img/user-plus-solid.svg" id="add_usr" onclick="add_user_btn()"/></span>
+            <span><img src="/img/gear-solid.svg" id="settings" onclick="toggle_settings()"/></span>
+        </div>
+        <div class="msg_body">
+            <div class="side_panel">
+                <div id="message_list">
+                    <div id="message"><h3 id="sender">Meow</h3></div>
+                </div>
+            </div>
+        </div>
+        <div id="settings_panel" class="show_popup hidden">
+            <h3>Settings</h3>
+            <span><img src="/img/xmark-solid.svg" id="settings_close" onclick="toggle_settings()"/></span>
+        </div>
+        <div id="add_usr_popup" class="show_popup1 hidden1">
+            <h3>New Message</h3>
+            <span><img src="/img/xmark-solid.svg" id="add_usr_close" onclick="add_user_btn()"/></span>
+            <h4>Enter IP</h4>
+            <input id="ip_addr" type="text" placeholder="000.000.000.000" autocomplete="off"><br>
+            <button id="add_user_btn1" onclick="add_user()">Add</button>
+        </div>
+        <div id="new_user" class="show_popup2 hidden2">
+            <h2>New User</h2>
+            <h4>Enter a User ID:</h4>
+            <input id="new_user_id" placeholder="User ID"><br>
+            <button id="new_user_submit" onclick="add_new_user()">Submit</button>
+        </div>
+    </body>
+</html>
