@@ -86,7 +86,7 @@ start.load_configs()
 
 class p2p():
     def App_snd(argu, call_func=''):
-        my_ip = '103.161.55.172'
+        my_ip = str(input("enter your IP:"))
         port = 2563
 
         host_name, a, my_address = socket.gethostbyaddr('103.161.55.172')
