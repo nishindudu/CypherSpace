@@ -248,7 +248,7 @@ h3{
 #new_user{
     /* opacity: 0; */
     width: 40%;
-    height: 35%;
+    height: 37%;
     background-color: #34373abe ;
     position: absolute;
     top: 50%;
@@ -300,6 +300,13 @@ h3{
     height: 16%;
     margin-left: calc(47% - 38px);
     margin-top: 4.6%;
+}
+#new_user a{
+    color: aliceblue;
+    margin-left: 45%;
+    margin-right: 43%;
+    margin-top: -10px;
+    display: flow;
 }
 .hidden2{
     display: none;

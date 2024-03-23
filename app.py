@@ -6,6 +6,7 @@ import logging
 import os.path
 import json
 import configparser
+import subprocess
 
 # error logger
 logger = logging.getLogger(__name__)
@@ -147,6 +148,10 @@ class uii():
         start.add_config('app', 'user', userid)
         start.add_config('app', 'executed_before', 'True')
         return True
+    
+    @eel.expose
+    def open_license():
+        subprocess.Popen(["notepad.exe", 'LICENSE'])
 
     @eel.expose
     def add_new_user(ip):

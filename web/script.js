@@ -84,3 +84,7 @@ async function add_new_user(){
         }
     }
 }
+
+async function open_license(){
+    eel.open_license()();
+}
