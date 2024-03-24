@@ -338,13 +338,33 @@ h3{
     height: 5%;
     margin-bottom: 5px;
     border-radius: 15px;
-    width: calc(100% - 55px);
+    width: calc(100% - 95px);
+    margin-left: 17px;
+}
+#message1 span{
+    display: flex;
 }
 #message1 span img{
     height: 32px;
     width: 32px;
+    float: right;
+    margin-left: calc(100% - 50px);
+    margin-top: calc(-1.7% - 25px);
 }
 
+#message_text1{
+    color: aliceblue;
+    font-size: 150%;
+    margin-bottom: 10px;
+}
+.sent_msg{
+    align-self: flex-end;
+    margin-right: 20px;
+}
+.recvd_msg{
+    margin-left: 20px; 
+    align-self: flex-start;
+}
 
 
 

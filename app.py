@@ -102,6 +102,13 @@ start.load_configs()
 start.add_user_to_db('meow', '127.0.0.1')
 start.add_user_to_db('cat', '192.168.1.1')
 start.add_user_to_db('test', '0.0.0.1')
+start.add_user_to_db('meowwww', '123.123.123.123')
+start.add_user_to_db('cat2', '1.2.3.1')
+start.add_user_to_db('catt', '3.4.5.6')
+start.add_user_to_db('cattd', '3.4.55.6')
+start.add_user_to_db('csatt', '3.4.53.6')
+start.add_user_to_db('catat', '3.4.52.6')
+start.add_user_to_db('caett', '3.4.57.6')
 
 # print(start.get_user_list()[0][0])
 

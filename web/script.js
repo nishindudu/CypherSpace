@@ -9,6 +9,8 @@
 
 function init(){
     is_new_user();
+    add_new_msg('hellooo new msg', true);
+    add_new_msg('hellooo new msg 2222', false);
 }
 
 function gofullscreen(){
@@ -101,7 +103,7 @@ setInterval(is_error, 5000);
 
 async function get_msg_list(){
     var user_list = await eel.get_user_list()();
-    console.log(user_list);
+    // console.log(user_list);
     for (let index = 0; index < user_list.length; index++) {
         const element = user_list[index];
         const msg_0 = document.createElement('div');
@@ -113,5 +115,27 @@ async function get_msg_list(){
         document.getElementById('message_list').appendChild(msg_0);
     }
 }
+
+function create_msg_element(message_text, send){
+    const messageElement = document.createElement('div');
+    messageElement.textContent = message_text;
+    messageElement.setAttribute('id', 'message_text1')
+    if (send === true){
+        messageElement.setAttribute('class', 'sent_msg');
+    } else if (send === false) {
+        messageElement.setAttribute('class', 'recvd_msg');
+    }
+    return messageElement;
+}
+
+function add_new_msg(message_text, send){
+    const message1div = document.getElementById('message1');
+    const new_message_element = create_msg_element(message_text, send);
+    // console.log(message1div.children);
+
+    const second_to_last_child = message1div.children[message1div.children.length - 2];
+    message1div.insertBefore(new_message_element, second_to_last_child);
+}
+
 
 get_msg_list();
