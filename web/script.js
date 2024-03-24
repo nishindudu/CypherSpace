@@ -88,3 +88,13 @@ async function add_new_user(){
 async function open_license(){
     eel.open_license()();
 }
+
+async function is_error(){
+    var err = await eel.is_error()();
+    if (err === true){
+        alert('Error');
+    }
+    // console.log(err);
+}
+
+setInterval(is_error, 5000)
