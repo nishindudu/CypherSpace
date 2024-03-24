@@ -92,11 +92,26 @@ async function open_license(){
 async function is_error(){
     var err = await eel.is_error()();
     if (err === true){
-        alert('Error');
+        alert('Error. Check \'errors.log\' file for more details');
     }
     // console.log(err);
 }
 
-setInterval(is_error, 5000)
+setInterval(is_error, 5000);
 
-async function get_msg_list(){}
+async function get_msg_list(){
+    var user_list = await eel.get_user_list()();
+    console.log(user_list);
+    for (let index = 0; index < user_list.length; index++) {
+        const element = user_list[index];
+        const msg_0 = document.createElement('div');
+        msg_0.setAttribute('id', 'message');
+        const msg = document.createElement('h3');
+        msg.setAttribute('id', 'sender');
+        msg.innerHTML = element[0];
+        msg_0.appendChild(msg);
+        document.getElementById('message_list').appendChild(msg_0);
+    }
+}
+
+get_msg_list();

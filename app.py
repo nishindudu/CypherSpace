@@ -103,7 +103,7 @@ start.add_user_to_db('meow', '127.0.0.1')
 start.add_user_to_db('cat', '192.168.1.1')
 start.add_user_to_db('test', '0.0.0.1')
 
-print(start.get_user_list()[0][0])
+# print(start.get_user_list()[0][0])
 
 class p2p():
     def App_snd(argu, call_func=''):
@@ -243,7 +243,9 @@ class uii():
     
     @eel.expose
     def get_user_list():
-        pass
+        logger.debug('uii.get_user_list() called by js')
+        user_list = start.get_user_list()
+        return user_list
 
     @eel.expose
     def add_new_user(ip):
@@ -253,7 +255,7 @@ class uii():
         start.add_user_to_db(user_name=user_name, ip=ip)
 
 
-# eel.start('index.html')
+eel.start('index.html')
 
 '''
 node1 = peer('0.0.0.0', 8523)
