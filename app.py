@@ -67,8 +67,10 @@ class start():
         if os.path.exists(r'./config/userdb.json'):
             with open(r'./config/userdb.json') as db:
                 json_object = json.load(db)
-                if json_object['userid'] == str(user_name):
-                    pass
+                for dict in json_object:
+                    if dict['userid'] == user_name:
+                        # print('user exists')
+                        return 'User Exists'
             dictionary = [{
                 "userid": f'{user_name}',
                 "ip": f'{ip}'
@@ -82,12 +84,26 @@ class start():
                 "ip": f'{ip}'
             }]
             with open(r"./config/userdb.json", 'w') as outfile:
-                json.dump(json_object, outfile)
+                json.dump(dictionary, outfile)
+    
+    def get_user_list():
+        if os.path.exists(r'./config/userdb.json'):
+            with open(r'./config/userdb.json') as db:
+                json_object = json.load(db)
+                user_list = []
+                for dict in json_object:
+                    usr = [dict['userid'], dict['ip']]
+                    user_list.append(usr)
+                return user_list
 
 start.load_configs()
 
 
+start.add_user_to_db('meow', '127.0.0.1')
+start.add_user_to_db('cat', '192.168.1.1')
+start.add_user_to_db('test', '0.0.0.1')
 
+print(start.get_user_list()[0][0])
 
 class p2p():
     def App_snd(argu, call_func=''):
@@ -224,6 +240,10 @@ class uii():
             return False
         else:
             return True
+    
+    @eel.expose
+    def get_user_list():
+        pass
 
     @eel.expose
     def add_new_user(ip):
@@ -235,6 +255,7 @@ class uii():
 
 # eel.start('index.html')
 
+'''
 node1 = peer('0.0.0.0', 8523)
 node1.start()
 
@@ -247,6 +268,7 @@ time.sleep(2)
 node2.connect('127.0.0.1', 8523)
 time.sleep(1)
 node2.send_data("user_id_req")
+'''
 
 #strt()
 #decentralized messaging app

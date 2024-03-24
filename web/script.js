@@ -98,3 +98,5 @@ async function is_error(){
 }
 
 setInterval(is_error, 5000)
+
+async function get_msg_list(){}
