@@ -7,6 +7,8 @@ import os.path
 import json
 import configparser
 import subprocess
+import time
+import queue
 
 class er():
     is_error1 = False
@@ -156,6 +158,7 @@ class p2p():
         pass
 
 class peer():
+    data_queue_user_id = queue.Queue()
     def __init__(self, host, port):
         self.host = host
         self.port = port
@@ -184,10 +187,11 @@ class peer():
             try:
                 connection.sendall(data.encode())
             except socket.error as e:
-                logger.error(f'Failed to send data. Error : {e}')
+                logger.error(f'Failed to send data in send_data. Error : {e}')
                 self.connections.remove(connection)
     
     def handle_client(self, connection, address):
+        temp_user_id_addr = '0'
         while True:
             try:
                 data = connection.recv(1024)
@@ -199,13 +203,24 @@ class peer():
 
                 if decoded_data == 'user_id_req':
                     user_id = start.get_config('app', 'user')
+                    user_id = 'user_id:'+ user_id
                     connection.sendall(user_id.encode())
-                    print(user_id)
                     print(f'sending respose to {address} : {user_id}')
+                    if temp_user_id_addr != str(address):
+                        time.sleep(1)
+                        connection.sendall('user_id_req')
+                        temp_user_id_addr = str(address)
                     break
+                if 'user_id:' in decoded_data:
+                    user_id_recvd = decoded_data.split(':')[1]
+                    print(user_id_recvd)
+                    start.add_user_to_db(user_id_recvd, str(address[0]))
+                    self.data_queue_user_id.put(user_id_recvd)
+                    break
+                break
 
             except socket.error as e:
-                logger.error(f'error : {e}')
+                logger.error(f'error in handle_client : {e}')
         logger.debug(f'connection from {address} closed')
         self.connections.remove(connection)
         connection.close()
@@ -258,25 +273,32 @@ class uii():
     def add_new_user(ip):
         # print(ip)
         ip = str(ip)
-        user_name = 0
+        peer.connect(ip, 585)
+        peer.send_data('user_id_req')
+        user_name = peer.data_queue_user_id.get(timeout=1)
         start.add_user_to_db(user_name=user_name, ip=ip)
+        return True
+    
+    @eel.expose
+    def send_msg(msg, user):
+        #complete aakanam
+        pass
 
 
 eel.start('index.html')
 
-'''
-node1 = peer('0.0.0.0', 8523)
+
+node1 = peer('0.0.0.0', 585)
 node1.start()
 
-
+'''
 node2 = peer('0.0.0.0', 8464)
 node2.start()
 
-import time
 time.sleep(2)
-node2.connect('127.0.0.1', 8523)
+node2.connect('127.0.0.1', 585)
 time.sleep(1)
-node2.send_data("user_id_req")
+node2.send_data("user_id:duduz")
 '''
 
 #strt()

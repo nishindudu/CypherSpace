@@ -330,16 +330,24 @@ h3{
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    overflow-y: auto;
+    height: calc(100vh - 84px);
+    overflow-y: auto;
 }
 #message_spacer{
     flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 #message_input{
-    height: 5%;
+    min-height: 5%;
+    max-height: 5%;
     margin-bottom: 5px;
     border-radius: 15px;
     width: calc(100% - 95px);
     margin-left: 17px;
+    margin-top: auto;
 }
 #message1 span{
     display: flex;
@@ -350,6 +358,9 @@ h3{
     float: right;
     margin-left: calc(100% - 50px);
     margin-top: calc(-1.7% - 25px);
+}
+#message1 span img:hover{
+    filter: drop-shadow(0px 0px 15px rgba(255, 255, 255, .7));
 }
 
 #message_text1{
