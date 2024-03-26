@@ -101,17 +101,6 @@ class start():
 start.load_configs()
 
 
-start.add_user_to_db('meow', '127.0.0.1')
-start.add_user_to_db('cat', '192.168.1.1')
-start.add_user_to_db('test', '0.0.0.1')
-start.add_user_to_db('meowwww', '123.123.123.123')
-start.add_user_to_db('cat2', '1.2.3.1')
-start.add_user_to_db('catt', '3.4.5.6')
-start.add_user_to_db('cattd', '3.4.55.6')
-start.add_user_to_db('csatt', '3.4.53.6')
-start.add_user_to_db('catat', '3.4.52.6')
-start.add_user_to_db('caett', '3.4.57.6')
-
 # print(start.get_user_list()[0][0])
 
 class p2p():
@@ -186,7 +175,7 @@ class peer():
         for connection in self.connections:
             try:
                 connection.sendall(data.encode())
-            except socket.error as e:
+            except Exception as e:
                 logger.error(f'Failed to send data in send_data. Error : {e}')
                 self.connections.remove(connection)
     
@@ -199,13 +188,13 @@ class peer():
                     break
                 logger.debug(f'recveived data from {address}')
                 decoded_data = data.decode()
-                print(f"Received data from {address}: {decoded_data}")
+                # print(f"Received data from {address}: {decoded_data}")
 
                 if decoded_data == 'user_id_req':
                     user_id = start.get_config('app', 'user')
                     user_id = 'user_id:'+ user_id
                     connection.sendall(user_id.encode())
-                    print(f'sending respose to {address} : {user_id}')
+                    # print(f'sending respose to {address} : {user_id}')
                     if temp_user_id_addr != str(address):
                         time.sleep(1)
                         connection.sendall('user_id_req')
@@ -213,13 +202,15 @@ class peer():
                     break
                 if 'user_id:' in decoded_data:
                     user_id_recvd = decoded_data.split(':')[1]
-                    print(user_id_recvd)
+                    # print(user_id_recvd)
                     start.add_user_to_db(user_id_recvd, str(address[0]))
                     self.data_queue_user_id.put(user_id_recvd)
                     break
+                else:
+                    uii.recv_msg(decoded_data, address)
                 break
 
-            except socket.error as e:
+            except Exception as e:
                 logger.error(f'error in handle_client : {e}')
         logger.debug(f'connection from {address} closed')
         self.connections.remove(connection)
@@ -280,7 +271,7 @@ class uii():
     def get_user_msg_list(user):
         try:
             logger.debug('get_user_msg_list called by js')
-            msgs = uii.nested_dict_test
+            msgs = uii.user_msgs
             req_user = msgs[user]
             # print(req_user[0][0], req_user[0][1])
             for i in req_user:
@@ -290,41 +281,76 @@ class uii():
                 if i[0] == 'recvd':
                     eel.add_new_msg(str(i[1]), False)
         except KeyError as e:
-            logger.error('Key not found in dict')
+            logger.info('Key not found in dict ',e)
             return False
 
 
     @eel.expose
     def add_new_user(ip):
-        # print(ip)
         ip = str(ip)
-        peer.connect(ip, 585)
-        peer.send_data('user_id_req')
+        node1 = peer('0.0.0.0', 585)
+        node1.connect( ip, 585)
+        node1.send_data('user_id_req')
         user_name = peer.data_queue_user_id.get(timeout=1)
         start.add_user_to_db(user_name=user_name, ip=ip)
+        # print('success!')
+        logger.debug('added new user')
         return True
     
     @eel.expose
     def send_msg(msg, user):
-        #complete aakanam
-        pass
+        user_list = start.get_user_list()
+        eel.add_new_msg(msg, True)
+        # print(user_list)
+        for i in user_list:
+            for j in i:
+                if j == user:
+                    user_ip = i[1]
+                    # print(user_ip)
+        node1 = peer('0.0.0.0', 585)
+        node1.connect(user_ip, 585)
+        node1.send_data(msg)
+        logger.debug('message sent from send_msg')
+        if user in uii.user_msgs:
+            uii.user_msgs[user].append(('sent', msg))
+            return
+        new_dict = {str(user): [('sent', msg)]}
+        uii.user_msgs.update(new_dict)
+        eel.get_msg_list()
+        return True
+    
+    def recv_msg(msg, ip):
+        user_list = start.get_user_list()
+        user_name = ''
+        logger.debug('message receive function')
+        for i in user_list:
+            if i[1] == ip:
+                user_name = str(i[0])
+        if user_name in uii.user_msgs:
+            uii.user_msgs[user_name].append(('recvd', msg))
+            if eel.user_in_view == user_name:
+                eel.add_new_msg(msg, False)
+            return
+        new_dict = {str(user_name): [('recvd', msg)]}
+        uii.user_msgs.update(new_dict)
+        if eel.user_in_view == user_name:
+            eel.add_new_msg(msg, False)
 
 
-eel.start('index.html')
+# uii.recv_msg('meosfvdw', '127.0.0.1')
+# uii.recv_msg('dfjv', '192.168.1.1')
+# uii.recv_msg('hfvnjfvdgbbv', '192.168.1.1')
+# print(uii.user_msgs)
+
 
 
 node1 = peer('0.0.0.0', 585)
 node1.start()
 
-'''
-node2 = peer('0.0.0.0', 8464)
-node2.start()
 
-time.sleep(2)
-node2.connect('127.0.0.1', 585)
-time.sleep(1)
-node2.send_data("user_id:duduz")
-'''
+eel.start('index.html')
+
+
 
 #strt()
 #decentralized messaging app

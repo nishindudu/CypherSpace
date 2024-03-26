@@ -9,36 +9,7 @@
 
 function init(){
     is_new_user();
-    /* add_new_msg('hellooo new msg', true);
-    add_new_msg('hellooo new msg 2222', false);
-    add_new_msg('hellooo new msg 2222', false);
-    add_new_msg('hellooo new msg 2222', false);
-    add_new_msg('hellooo new msg 2222', false);
-    add_new_msg('hellooo new msg 2222', false);
-    add_new_msg('hellooo new msg 2222', false);
-    add_new_msg('hellooo new msg 2222', false);
-    add_new_msg('hellooo new msg 2222', false);
-    add_new_msg('hellooo new msg 2222', false);
-    add_new_msg('hellooo new msg 2222', false);
-    add_new_msg('hellooo new msg 2222', false);
-    add_new_msg('hellooo new msg', true);
-    add_new_msg('hellooo new msg', true);
-    add_new_msg('hellooo new msg', true);
-    add_new_msg('hellooo new msg', true);
-    add_new_msg('hellooo new msg', true);
-    add_new_msg('hellooo new msg', true);
-    add_new_msg('hellooo new msg', true);
-    add_new_msg('hellooo new msg', true);
-    add_new_msg('hellooo new msg', true);
-    add_new_msg('hellooo new msg', true);
-    add_new_msg('hellooo new msg', true);
-    add_new_msg('hellooo new msg', true);
-    add_new_msg('hellooo new msg', true);
-    add_new_msg('hellooo new msg', true);
-    add_new_msg('hellooo new msg', true);
-    add_new_msg('hellooo new msg', true);
-    add_new_msg('hellooo new msg', true);
-    add_new_msg('<script>alert(1);</script>', true); */
+    get_font_size();
 }
 
 function gofullscreen(){
@@ -134,6 +105,7 @@ async function is_error(){
 setInterval(is_error, 5000);
 
 var index1 = 0;
+eel.expose(get_msg_list)
 async function get_msg_list(){
     var user_list = await eel.get_user_list()();
     // console.log(user_list);
@@ -149,6 +121,12 @@ async function get_msg_list(){
         msg_0.appendChild(msg);
         document.getElementById('message_list').appendChild(msg_0);
     }
+}
+
+eel.expose(user_in_view);
+function user_in_view(){
+    var msg = document.querySelector(`[data-index="${div_no}"]`).textContent;
+    return msg;
 }
 
 function create_msg_element(message_text, send){
@@ -176,10 +154,14 @@ function add_new_msg(message_text, send){
 
 get_msg_list();
 
-
-function send_msg(){
-    input = document.getElementById('message_input');
-    // complete aakanam
+var div_no = 0;
+async function send_msg(){
+    const input = document.getElementById('message_input');
+    var in_value = input.value;
+    // console.log(div_no);
+    const div = document.querySelector(`[data-index="${div_no}"]`).textContent;
+    // console.log(div);
+    await eel.send_msg(in_value, div);
 }
 
 
@@ -203,7 +185,7 @@ async function get_msg_for_usr(div1){
 
 document.addEventListener('DOMContentLoaded', function() {
     const parentElement = document.getElementById('message_list'); // Assuming a parent element
-  
+    var previousdiv = null;
     parentElement.addEventListener('click', function(event) {
       if (event.target.closest('#message')) { // Check if the clicked element is a div with id "message"
         const clickedDiv = event.target.closest('#message');
@@ -211,8 +193,27 @@ document.addEventListener('DOMContentLoaded', function() {
         // console.log('Clicked div index:', divIndex);
         // alert('Clicked:'+ divIndex);
         get_msg_for_usr(clickedDiv);
+        div_no = divIndex;
         const msg_div = document.getElementById('message1');
         msg_div.style.display = 'flex';
+
+        if (previousdiv) {
+            previousdiv.style.backgroundColor = '';
+        }
+        clickedDiv.style.backgroundColor = 'rgba(118, 152, 179, .85)';
+        previousdiv = clickedDiv;
       }
     });
 });
+
+
+async function get_font_size(){
+    const input = document.getElementById('msg_font_size');
+    input.value = 27;
+}
+function set_font_size() {
+    const input = document.getElementById('msg_font_size');
+    var size = input.size;
+    const text = document.getElementById('message_text1');
+    text.style.fontSize = size;
+}

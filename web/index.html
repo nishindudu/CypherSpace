@@ -28,7 +28,11 @@
         </div>
         <div id="settings_panel" class="show_popup hidden">
             <h3>Settings</h3>
-            <span><img src="/img/xmark-solid.svg" id="settings_close" onclick="toggle_settings()"/></span>
+            <span><img src="/img/xmark-solid.svg" id="settings_close" onclick="toggle_settings()"/></span><br>
+            <span class="setting">
+                <p>Font Size: </p><input type="number" id="msg_font_size">&nbsp;<button onclick="set_font_size()">Save</button>
+            </span>
+            <span></span>
         </div>
         <div id="add_usr_popup" class="show_popup1 hidden1">
             <h3>New Message</h3>
@@ -45,4 +49,5 @@
             <a onclick="open_license()" href="javascript:void(0)">License</a>
         </div>
     </body>
+    <div id="message_text1"></div>
 </html>

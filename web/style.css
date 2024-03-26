@@ -102,6 +102,10 @@ h3{
     text-align: center;
     min-width: 500px;
 }
+#settings_panel p{
+    color: aliceblue;
+    font-family: Inter-Local;
+}
 
 @font-face{
     font-family: Inter-local;
@@ -169,7 +173,7 @@ h3{
 
 #message_list #message:hover{
     /* background-image: linear-gradient(to right, #7698B3, #4e6477); */
-    background-color: rgba(118, 152, 179, .8);
+    background-color: rgba(118, 152, 179, .5);
 }
 
 #message_list #sender{
@@ -371,7 +375,7 @@ h3{
 
 #message_text1{
     color: aliceblue;
-    font-size: 150%;
+    font-size: 27px;
     margin-bottom: 10px;
 }
 .sent_msg{
@@ -383,6 +387,13 @@ h3{
     align-self: flex-start;
 }
 
+.setting{
+    display: block;
+}
+.setting p{
+    width: 50%;
+    display: contents;
+}
 
 
 ::-webkit-scrollbar {
