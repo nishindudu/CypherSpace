@@ -231,6 +231,13 @@ class peer():
 
 
 class uii():
+    nested_dict_test = {'meow':[('sent', 'hello'),
+                                ('recvd', 'hai')],
+                        'cat' : [('sent', 'mewowww'),
+                                 ('sent', 'meow2'),
+                                 ('recvd', 'hello')]}
+    user_msgs = {}
+
     eel.init("web")
 
     @eel.expose
@@ -268,6 +275,24 @@ class uii():
         logger.debug('uii.get_user_list() called by js')
         user_list = start.get_user_list()
         return user_list
+    
+    @eel.expose
+    def get_user_msg_list(user):
+        try:
+            logger.debug('get_user_msg_list called by js')
+            msgs = uii.nested_dict_test
+            req_user = msgs[user]
+            # print(req_user[0][0], req_user[0][1])
+            for i in req_user:
+                # print(i)
+                if i[0] == 'sent':
+                    eel.add_new_msg(str(i[1]), True)
+                if i[0] == 'recvd':
+                    eel.add_new_msg(str(i[1]), False)
+        except KeyError as e:
+            logger.error('Key not found in dict')
+            return False
+
 
     @eel.expose
     def add_new_user(ip):

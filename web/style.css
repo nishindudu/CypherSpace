@@ -324,10 +324,15 @@ h3{
     display: flex;
 }
 
+@font-face {
+    font-family: Metrophobic-Local;
+    src: url(/fonts/Metrophobic-Regular.ttf);
+}
+
 #message1{
     flex: 1;
     background-color: #3f4348;
-    display: flex;
+    display: none;
     flex-direction: column;
     justify-content: space-between;
     overflow-y: auto;
@@ -339,6 +344,7 @@ h3{
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    font-family: Metrophobic-Local;
 }
 #message_input{
     min-height: 5%;

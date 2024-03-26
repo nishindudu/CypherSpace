@@ -9,7 +9,7 @@
 
 function init(){
     is_new_user();
-    add_new_msg('hellooo new msg', true);
+    /* add_new_msg('hellooo new msg', true);
     add_new_msg('hellooo new msg 2222', false);
     add_new_msg('hellooo new msg 2222', false);
     add_new_msg('hellooo new msg 2222', false);
@@ -38,7 +38,7 @@ function init(){
     add_new_msg('hellooo new msg', true);
     add_new_msg('hellooo new msg', true);
     add_new_msg('hellooo new msg', true);
-    add_new_msg('<script>alert(1);</script>', true);
+    add_new_msg('<script>alert(1);</script>', true); */
 }
 
 function gofullscreen(){
@@ -163,6 +163,7 @@ function create_msg_element(message_text, send){
     return messageElement;
 }
 
+eel.expose(add_new_msg);
 function add_new_msg(message_text, send){
     const message1div = document.getElementById('message_spacer');
     const new_message_element = create_msg_element(message_text, send);
@@ -192,6 +193,14 @@ function send_msg(){
 // })
 
 
+async function get_msg_for_usr(div1){
+    var user = div1.textContent;
+    const message1div = document.getElementById('message_spacer');
+    message1div.replaceChildren();
+    var get = await eel.get_user_msg_list(user)();
+    // console.log(message_list);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const parentElement = document.getElementById('message_list'); // Assuming a parent element
   
@@ -201,6 +210,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const divIndex = clickedDiv.dataset.index;
         // console.log('Clicked div index:', divIndex);
         // alert('Clicked:'+ divIndex);
+        get_msg_for_usr(clickedDiv);
+        const msg_div = document.getElementById('message1');
+        msg_div.style.display = 'flex';
       }
     });
 });
