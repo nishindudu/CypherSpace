@@ -10,6 +10,7 @@
 function init(){
     is_new_user();
     get_font_size();
+    get_my_ip();
 }
 
 function gofullscreen(){
@@ -161,7 +162,10 @@ async function send_msg(){
     // console.log(div_no);
     const div = document.querySelector(`[data-index="${div_no}"]`).textContent;
     // console.log(div);
-    await eel.send_msg(in_value, div);
+    if (is_user_online() === true) {
+        await eel.send_msg(in_value, div);
+        input.value = null;
+    }
 }
 
 
@@ -216,4 +220,21 @@ function set_font_size() {
     var size = input.size;
     const text = document.getElementById('message_text1');
     text.style.fontSize = size;
+}
+
+async function get_my_ip(){
+    const ip = await eel.get_my_ip()();
+    const text = document.querySelector('#my_ip');
+    text.textContent = ('Your IP Address: '+ ip);
+}
+
+async function is_user_online(){
+    const user = document.querySelector(`[data-index="${div_no}"]`).textContent;
+    is_online = await eel.is_user_online(user)();
+    if (is_online === false) {
+        alert('User is offline');
+        return false;
+    } else {
+        return true;
+    }
 }

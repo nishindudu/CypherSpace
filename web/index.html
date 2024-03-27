@@ -32,7 +32,9 @@
             <span class="setting">
                 <p>Font Size: </p><input type="number" id="msg_font_size">&nbsp;<button onclick="set_font_size()">Save</button>
             </span>
-            <span></span>
+            <span class="setting">
+                <p id="my_ip">Your IP Address: </p>
+            </span>
         </div>
         <div id="add_usr_popup" class="show_popup1 hidden1">
             <h3>New Message</h3>
@@ -49,5 +51,5 @@
             <a onclick="open_license()" href="javascript:void(0)">License</a>
         </div>
     </body>
-    <div id="message_text1"></div>
+    <div id="message_text1" style="display: none;"></div>
 </html>

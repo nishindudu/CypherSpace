@@ -11,6 +11,10 @@ h3{
     color: white;
 }
 
+@keyframes fade_in {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+}
 .title_txt{
     color: #C7DFF4;
     font-family: 'Adam';
@@ -20,6 +24,7 @@ h3{
     padding-left: 12px;
     display: inline-block;
     padding-top: 10px;
+    animation: fade_in 1s;
 }
 
 .nav{
@@ -39,6 +44,7 @@ h3{
     /* margin-left: calc(95vw - 348.5px); */
     margin-left: 3vw;
     margin-top: 0;
+    animation: fade_in 1s;
 }
 
 .nav #add_usr{
@@ -49,6 +55,7 @@ h3{
     margin-left: calc(95vw - 418.5px);
     margin-top: 0;
     transition: transform 0.2s ease-in-out;
+    animation: fade_in 1s;
 }
 
 .nav #add_usr:hover{
@@ -157,6 +164,7 @@ h3{
 #message_list{
     display: flex;
     flex-direction: column;
+    transition: all .2s;
 }
 
 #message_list #message{
@@ -169,6 +177,8 @@ h3{
     margin-bottom: 7px;
     /* border: 2px solid #C7DFF4; */
     margin-right: 3px;
+    animation-name: fade_in;
+    animation-duration: 2s;
 }
 
 #message_list #message:hover{
@@ -389,6 +399,7 @@ h3{
 
 .setting{
     display: block;
+    margin-bottom: 25px;
 }
 .setting p{
     width: 50%;

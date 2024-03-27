@@ -9,6 +9,9 @@ import configparser
 import subprocess
 import time
 import queue
+from requests import get
+import platform
+import subprocess
 
 class er():
     is_error1 = False
@@ -97,6 +100,11 @@ class start():
                     usr = [dict['userid'], dict['ip']]
                     user_list.append(usr)
                 return user_list
+    
+    def ping(ip):
+        param = '-n' if platform.system().lower() == 'windows' else '-c'
+        command = ['ping', param, '1', ip]
+        return subprocess.call(command) == 0
 
 start.load_configs()
 
@@ -218,6 +226,7 @@ class peer():
     
     def start(self):
         listen_thread = threading.Thread(target=self.listen)
+        listen_thread.daemon = True
         listen_thread.start()
 
 
@@ -335,12 +344,25 @@ class uii():
         uii.user_msgs.update(new_dict)
         if eel.user_in_view == user_name:
             eel.add_new_msg(msg, False)
+    
+    @eel.expose
+    def get_my_ip():
+        ip = get('https://api.ipify.org').content.decode('utf-8')
+        return str(ip)
+    
+    @eel.expose
+    def is_user_online(user):
+        user_list = start.get_user_list()
+        for i in user_list:
+            if i[0] == user:
+                user_ip = i[1]
+        is_online = start.ping(user_ip)
+        return is_online
+    
+    @eel.expose
+    def close_event():
+        sys.exit(0)
 
-
-# uii.recv_msg('meosfvdw', '127.0.0.1')
-# uii.recv_msg('dfjv', '192.168.1.1')
-# uii.recv_msg('hfvnjfvdgbbv', '192.168.1.1')
-# print(uii.user_msgs)
 
 
 
@@ -350,12 +372,4 @@ node1.start()
 
 eel.start('index.html')
 
-
-
-#strt()
-#decentralized messaging app
-'''
-messaging app using python sockets
-decentalized naming system for user id storage
-link ip to user id
-'''
+uii.close_event()
