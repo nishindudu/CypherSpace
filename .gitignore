@@ -1,2 +1,6 @@
 config/
 errors.log
+CypherSpace.spec
+
+build/
+dist/
