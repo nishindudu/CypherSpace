@@ -38,6 +38,7 @@ class start():
             config.add_section('app')
             config.set('app', 'executed_before', 'False')
             start.executed_before = False
+            os.mkdir('./config')
             with open(r"./config/configfile.ini", 'w') as configfile:
                 config.write(configfile)
         else:
