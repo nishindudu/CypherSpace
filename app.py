@@ -11,7 +11,11 @@ import time
 import queue
 from requests import get
 import platform
-import subprocess
+import rsa
+import base64
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 class er():
     is_error1 = False
@@ -32,17 +36,42 @@ sys.excepthook = handle_errors
 config = configparser.ConfigParser()
 class start():
     executed_before = False
+    fernet_key = ''
     def load_configs():
         if not os.path.exists('./config/configfile.ini'):
-            print('config file does not exist')
+            # print('config file does not exist')
+            logger.debug('Config file does not exist \nCreating config file.')
             config.add_section('app')
             config.set('app', 'executed_before', 'False')
             start.executed_before = False
             os.mkdir('./config')
+            public_key, private_key = encrypt.generate_keys()
+            password = input('Create a password: ')
+            salt = os.urandom(16)
+            start.fernet_key = encrypt.derive_fernet_key(password, salt)
+            encrypted_private_key = encrypt.encrypt_private_key(private_key, start.fernet_key)
+            encrypted_private_key = base64.b64encode(encrypted_private_key).decode('utf-8')
+            fernet_key = base64.b64encode(start.fernet_key).decode('utf-8')
+            salt = base64.b64encode(salt).decode('utf-8')
+            config.set('app', 'private_key', encrypted_private_key)
+            config.set('app', 'public_key', public_key)
+            config.set('app', 'salt', salt)
+            del private_key
+            del salt
             with open(r"./config/configfile.ini", 'w') as configfile:
                 config.write(configfile)
         else:
             config.read("./config/configfile.ini")
+            password = input('Enter your password: ')
+            salt = config['app']['salt']
+            salt = base64.b64decode(salt)
+            start.fernet_key = encrypt.derive_fernet_key(password, salt)
+            encrypted_private_key = config['app']['private_key']
+            encrypted_private_key = base64.b64decode(encrypted_private_key)
+            if encrypt.decrypt_private_key(encrypted_private_key, start.fernet_key) == 'Invalid Password2563;':
+                print('Invalid password')
+                input('Press any key to exit')
+                sys.exit('Incorrect Password')
             start.executed_before = True
     
     def add_config(section, key, value):
@@ -69,7 +98,7 @@ class start():
         else:
             raise Exception('Does not exist in configuration file')
     
-    def add_user_to_db(user_name, ip):
+    def add_user_to_db(user_name, ip, public_key):
         if os.path.exists(r'./config/userdb.json'):
             with open(r'./config/userdb.json') as db:
                 json_object = json.load(db)
@@ -79,7 +108,8 @@ class start():
                         return 'User Exists'
             dictionary = [{
                 "userid": f'{user_name}',
-                "ip": f'{ip}'
+                "ip": f'{ip}',
+                'key': f'{public_key}'
             }]
             json_object.extend(dictionary)
             with open(r"./config/userdb.json", 'w') as outfile:
@@ -106,6 +136,57 @@ class start():
         param = '-n' if platform.system().lower() == 'windows' else '-c'
         command = ['ping', param, '1', ip]
         return subprocess.call(command) == 0
+
+
+
+class encrypt():
+    def generate_keys(keysize=2048):
+        logger.debug('Generating keys')
+        (public_key, private_key) = rsa.newkeys(keysize)
+        return public_key, private_key
+
+    def encrypt(message, public_key):
+        logger.debug('encrypt.encrypt() - Encrypting message')
+        ciphertext = rsa.encrypt(message.encode('utf-8'), public_key)
+        return ciphertext
+
+    def decrypt(ciphertext, private_key):
+        logger.debug('Decrypting')
+        try:
+            message = rsa.decrypt(ciphertext, private_key).decode('utf-8')
+            return message
+        except:
+            logger.error('Decryption failed')
+            return 'Failed2563;'
+    
+    def derive_fernet_key(password, salt):
+        kdf = PBKDF2HMAC(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=salt,
+            iterations=390000
+        )
+        key = base64.urlsafe_b64encode(kdf.derive(password.encode('utf-8')))
+        return key
+
+    def encrypt_private_key(key, password):
+        logger.debug('Encrypting key')
+        fernet = Fernet(password)
+        encrypted_private_key = fernet.encrypt(key.save_pkcs1())
+        return encrypted_private_key
+    
+    def decrypt_private_key(key, password):
+        logger.debug('Decrypting key')
+        fernet = Fernet(password)
+        try:
+            private_key_bytes = fernet.decrypt(key)
+            private_key = rsa.PrivateKey.load_pkcs1(private_key_bytes)
+            return private_key
+        except:
+            logger.error('Invalid Password')
+            return 'Invalid Password2563;'
+
+
 
 start.load_configs()
 
@@ -183,7 +264,10 @@ class peer():
     def send_data(self, data):
         for connection in self.connections:
             try:
-                connection.sendall(data.encode())
+                if not isinstance(data, bytes):
+                    connection.sendall(data.encode())
+                else:
+                    connection.sendall(data)
             except Exception as e:
                 logger.error(f'Failed to send data in send_data. Error : {e}')
                 self.connections.remove(connection)
@@ -195,13 +279,14 @@ class peer():
                 data = connection.recv(1024)
                 if not data:
                     break
-                logger.debug(f'recveived data from {address}')
+                logger.debug(f'Recveived data from {address}')
                 decoded_data = data.decode()
                 # print(f"Received data from {address}: {decoded_data}")
 
                 if decoded_data == 'user_id_req':
                     user_id = start.get_config('app', 'user')
-                    user_id = 'user_id:'+ user_id
+                    public_key = start.get_config('app', 'public_key')
+                    user_id = 'user_id:'+ user_id + ',' + public_key
                     connection.sendall(user_id.encode())
                     # print(f'sending respose to {address} : {user_id}')
                     if temp_user_id_addr != str(address):
@@ -211,8 +296,10 @@ class peer():
                     break
                 if 'user_id:' in decoded_data:
                     user_id_recvd = decoded_data.split(':')[1]
+                    user_id_recvd0 = user_id_recvd.split(',')[0]
+                    public_key_recvd = user_id_recvd.split(',')[1]
                     # print(user_id_recvd)
-                    start.add_user_to_db(user_id_recvd, str(address[0]))
+                    start.add_user_to_db(user_id_recvd0, str(address[0]), public_key_recvd)
                     self.data_queue_user_id.put(user_id_recvd)
                     break
                 else:
@@ -232,11 +319,6 @@ class peer():
 
 
 class uii():
-    nested_dict_test = {'meow':[('sent', 'hello'),
-                                ('recvd', 'hai')],
-                        'cat' : [('sent', 'mewowww'),
-                                 ('sent', 'meow2'),
-                                 ('recvd', 'hello')]}
     user_msgs = {}
 
     eel.init("web")
@@ -316,7 +398,9 @@ class uii():
             for j in i:
                 if j == user:
                     user_ip = i[1]
+                    user_public_key = i[2]
                     # print(user_ip)
+        msg = encrypt.encrypt(msg, user_public_key)
         node1 = peer('0.0.0.0', 585)
         node1.connect(user_ip, 585)
         node1.send_data(msg)
@@ -333,9 +417,12 @@ class uii():
         user_list = start.get_user_list()
         user_name = ''
         logger.debug('message receive function')
+        private_key = start.get_config('app', 'private_key')
+        private_key = encrypt.decrypt_private_key(private_key, start.fernet_key)
         for i in user_list:
             if i[1] == ip:
                 user_name = str(i[0])
+        msg = encrypt.decrypt(msg, private_key)
         if user_name in uii.user_msgs:
             uii.user_msgs[user_name].append(('recvd', msg))
             if eel.user_in_view == user_name:
