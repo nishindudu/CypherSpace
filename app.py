@@ -237,7 +237,7 @@ class p2p():
         pass
 
 class peer():
-    data_queue_user_id = queue.Queue()
+    # data_queue_user_id = queue.Queue()
     def __init__(self, host, port):
         self.host = host
         self.port = port
@@ -300,7 +300,7 @@ class peer():
                     public_key_recvd = user_id_recvd.split(',')[1]
                     # print(user_id_recvd)
                     start.add_user_to_db(user_id_recvd0, str(address[0]), public_key_recvd)
-                    self.data_queue_user_id.put(user_id_recvd)
+                    # self.data_queue_user_id.put(user_id_recvd)
                     break
                 else:
                     uii.recv_msg(decoded_data, address)
@@ -383,8 +383,8 @@ class uii():
         node1 = peer('0.0.0.0', 585)
         node1.connect( ip, 585)
         node1.send_data('user_id_req')
-        user_name = peer.data_queue_user_id.get(timeout=1)
-        start.add_user_to_db(user_name=user_name, ip=ip)
+        # user_name = peer.data_queue_user_id.get(timeout=5)
+        # start.add_user_to_db(user_name=user_name, ip=ip)
         # print('success!')
         logger.debug('added new user')
         return True
