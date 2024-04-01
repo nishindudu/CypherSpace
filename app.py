@@ -16,6 +16,7 @@ import base64
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from getpass import getpass
 
 class er():
     is_error1 = False
@@ -44,14 +45,18 @@ class start():
             config.add_section('app')
             config.set('app', 'executed_before', 'False')
             start.executed_before = False
-            os.mkdir('./config')
+            try:
+                os.mkdir('./config')
+            except Exception:
+                logger.error('mkdir failed or folder exists')
             public_key, private_key = encrypt.generate_keys()
-            password = input('Create a password: ')
+            password = getpass('Create a password: ')
             salt = os.urandom(16)
             start.fernet_key = encrypt.derive_fernet_key(password, salt)
             encrypted_private_key = encrypt.encrypt_private_key(private_key, start.fernet_key)
             encrypted_private_key = base64.b64encode(encrypted_private_key).decode('utf-8')
             fernet_key = base64.b64encode(start.fernet_key).decode('utf-8')
+            public_key = base64.b64encode(public_key).decode('utf-8')
             salt = base64.b64encode(salt).decode('utf-8')
             config.set('app', 'private_key', encrypted_private_key)
             config.set('app', 'public_key', public_key)
@@ -62,7 +67,7 @@ class start():
                 config.write(configfile)
         else:
             config.read("./config/configfile.ini")
-            password = input('Enter your password: ')
+            password = getpass('Enter your password: ')
             salt = config['app']['salt']
             salt = base64.b64decode(salt)
             start.fernet_key = encrypt.derive_fernet_key(password, salt)
@@ -143,6 +148,8 @@ class encrypt():
     def generate_keys(keysize=2048):
         logger.debug('Generating keys')
         (public_key, private_key) = rsa.newkeys(keysize)
+        public_key = public_key.save_pkcs1('PEM')
+        private_key = private_key.save_pkcs1('PEM')
         return public_key, private_key
 
     def encrypt(message, public_key):
@@ -172,7 +179,8 @@ class encrypt():
     def encrypt_private_key(key, password):
         logger.debug('Encrypting key')
         fernet = Fernet(password)
-        encrypted_private_key = fernet.encrypt(key.save_pkcs1())
+        # key_bytes = key.save_pkcs1('PEM')
+        encrypted_private_key = fernet.encrypt(key)
         return encrypted_private_key
     
     def decrypt_private_key(key, password):
