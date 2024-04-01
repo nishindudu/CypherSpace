@@ -258,7 +258,7 @@ class peer():
         while True:
             connnection, address = self.socket.accept()
             self.connections.append(connnection)
-            logger.debug(f'accepted connection from {address}')
+            logger.debug('accepted connection from %s', address)
             threading.Thread(target=self.handle_client, args=(connnection, address)).start()
     
     def send_data(self, data):
@@ -269,7 +269,7 @@ class peer():
                 else:
                     connection.sendall(data)
             except Exception as e:
-                logger.error(f'Failed to send data in send_data. Error : {e}')
+                logger.error('Failed to send data in send_data. Error : %s', e)
                 self.connections.remove(connection)
     
     def handle_client(self, connection, address):
@@ -279,7 +279,7 @@ class peer():
                 data = connection.recv(1024)
                 if not data:
                     break
-                logger.debug(f'Recveived data from {address}')
+                logger.debug('Recveived data from %s', address)
                 decoded_data = data.decode()
                 # print(f"Received data from {address}: {decoded_data}")
 
@@ -307,8 +307,8 @@ class peer():
                 break
 
             except Exception as e:
-                logger.error(f'error in handle_client : {e}')
-        logger.debug(f'connection from {address} closed')
+                logger.error('error in handle_client %s', e)
+        logger.debug('connection from %s closed', address)
         self.connections.remove(connection)
         connection.close()
     
@@ -348,7 +348,7 @@ class uii():
     
     @eel.expose
     def is_error():
-        if er.is_error1 == False:
+        if not er.is_error1:
             return False
         else:
             return True
@@ -373,7 +373,7 @@ class uii():
                 if i[0] == 'recvd':
                     eel.add_new_msg(str(i[1]), False)
         except KeyError as e:
-            logger.info('Key not found in dict ',e)
+            logger.info('Key not found in dict %s', e)
             return False
 
 
