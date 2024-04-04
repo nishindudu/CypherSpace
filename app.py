@@ -23,7 +23,7 @@ class er():
 
 # error logger
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename='errors.log', filemode='a', level=logging.WARNING)
+logging.basicConfig(filename='errors.log', filemode='a', level=logging.DEBUG, format='[%(asctime)s]-{%(pathname)s:%(lineno)d}---%(levelname)s--%(message)s')
 def handle_errors(exc_type, exc_value, exc_traceback):
     if issubclass(exc_type, KeyboardInterrupt):
         sys.__excepthook__(exc_type, exc_value, exc_traceback)
@@ -281,6 +281,7 @@ class peer():
                 self.connections.remove(connection)
     
     def handle_client(self, connection, address):
+        logger.debug('handle_client function')
         temp_user_id_addr = '0'
         while True:
             try:
@@ -289,20 +290,24 @@ class peer():
                     break
                 logger.debug('Recveived data from %s', address)
                 decoded_data = data.decode()
-                # print(f"Received data from {address}: {decoded_data}")
+                logger.debug('Data: %s', decoded_data)
+                print(f"Received data from {address}: {decoded_data}")
 
                 if decoded_data == 'user_id_req':
+                    logger.debug('Sending UserId')
                     user_id = start.get_config('app', 'user')
                     public_key = start.get_config('app', 'public_key')
                     user_id = 'user_id:'+ user_id + ',' + public_key
+                    time.sleep(2)
                     connection.sendall(user_id.encode())
                     # print(f'sending respose to {address} : {user_id}')
                     if temp_user_id_addr != str(address):
                         time.sleep(1)
-                        connection.sendall('user_id_req')
+                        connection.sendall('user_id_req'.encode())
                         temp_user_id_addr = str(address)
                     break
                 if 'user_id:' in decoded_data:
+                    logger.debug('User ID Received')
                     user_id_recvd = decoded_data.split(':')[1]
                     user_id_recvd0 = user_id_recvd.split(',')[0]
                     public_key_recvd = user_id_recvd.split(',')[1]
@@ -321,6 +326,7 @@ class peer():
         connection.close()
     
     def start(self):
+        logger.debug('Starting network listen')
         listen_thread = threading.Thread(target=self.listen)
         listen_thread.daemon = True
         listen_thread.start()
